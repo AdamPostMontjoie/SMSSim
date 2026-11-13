@@ -202,8 +202,10 @@ void producer() {
 }
 
 void sender(double failure_rate, int sender_id) {
-  seed_seq sender_seed{simulation_seed, 1UL, static_cast<unsigned long>(sender_id)};
-  mt19937 rng(sender_seed);
+  seed_seq wait_seed{simulation_seed, 0UL, static_cast<unsigned long>(sender_id)};
+  mt19937 wait_rng(wait_seed);
+  seed_seq failure_seed{simulation_seed, 1UL, static_cast<unsigned long>(sender_id)};
+  mt19937 failure_rng(failure_seed);
   uniform_real_distribution<double> wait_offset(-1.0, 1.0);
   bernoulli_distribution failure(failure_rate);
 
@@ -213,10 +215,10 @@ void sender(double failure_rate, int sender_id) {
       return;
     }
 
-    double send_wait_ms = mean_send_wait_ms * (1.0 + 0.5 * wait_offset(rng));
+    double send_wait_ms = mean_send_wait_ms * (1.0 + 0.5 * wait_offset(wait_rng));
     auto send_start = chrono::steady_clock::now();
     this_thread::sleep_for(chrono::duration<double, milli>(send_wait_ms));
-    bool failed = failure(rng);
+    bool failed = failure(failure_rng);
     double send_time_ms = chrono::duration<double, milli>(chrono::steady_clock::now() - send_start).count();
     //lock to update stats
     {
