@@ -1,6 +1,8 @@
 #include "simulation.h"
 #include <iostream>
+#include <limits>
 #include <random>
+#include <stdexcept>
 #include <string>
 
 using namespace std;
@@ -44,7 +46,13 @@ int main(int argc, char *argv[]) {
         }
         i++; // Move from the flag to its value.
         if (option == "--messages") {
-            messages = stoi(argv[i]);
+            try {
+                messages = stoi(argv[i]);
+            } catch (const out_of_range &) {
+                cerr << "Message count must be between 0 and "
+                     << numeric_limits<int>::max() << ".\n";
+                return 1;
+            }
         } else if (option == "--senders") {
             senders = stoi(argv[i]);
         } else if (option == "--mean-wait-ms") {

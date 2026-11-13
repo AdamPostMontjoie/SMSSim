@@ -31,8 +31,7 @@ Message last_sent_message{-1, ""};
 bool last_message_failed = false;
 chrono::steady_clock::time_point simulation_start;
 
-void print_stats(int sent, int failed, double send_time_ms, double elapsed_seconds,
-                 const Message &last_sent, bool last_failed, bool progressive_print) {
+void print_stats(int sent, int failed, double send_time_ms, double elapsed_seconds, const Message &last_sent, bool last_failed, bool progressive_print) {
   int processed = sent + failed;
   double average_send_time_ms = processed > 0 ? send_time_ms / processed : 0;
   double throughput = elapsed_seconds > 0 ? processed / elapsed_seconds : 0;
@@ -103,7 +102,6 @@ void InitSimulation(int messages, int num_senders, double mean_send_wait, double
 
   // An unpaired value keeps the mean; shuffle the assignments reproducibly.
   shuffle(failure_rates.begin(), failure_rates.end(), rng);
-
   {
     lock_guard<mutex> lock(stats_mutex);
     messages_sent = 0;
