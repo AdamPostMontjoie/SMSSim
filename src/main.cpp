@@ -1,4 +1,5 @@
 #include "simulation.h"
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     unsigned long seed = 0;
     bool has_seed = false;
     bool progressive_print = false;
+    const int max_senders = numeric_limits<int>::max() / 2;
 
     for (int i = 1; i < argc; i++) {
         string option = argv[i];
@@ -54,7 +56,12 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         } else if (option == "--senders") {
-            senders = stoi(argv[i]);
+            try {
+                senders = stoi(argv[i]);
+            } catch (const out_of_range &) {
+                cerr << "Sender count must be between 1 and " << max_senders << ".\n";
+                return 1;
+            }
         } else if (option == "--mean-wait-ms") {
             mean_wait_ms = stod(argv[i]);
         } else if (option == "--mean-failure-rate") {
@@ -69,6 +76,15 @@ int main(int argc, char *argv[]) {
 
     if (messages < 0 || senders <= 0) {
         cerr << "Messages must be >= 0 and senders must be > 0.\n";
+        return 1;
+    }
+    if (senders > max_senders) {
+        cerr << "Sender count must be between 1 and " << max_senders << ".\n";
+        return 1;
+    }
+    if (!isfinite(mean_wait_ms) || !isfinite(mean_failure_rate) ||
+        !isfinite(progress_interval)) {
+        cerr << "Mean wait, mean failure rate, and progress interval must be finite.\n";
         return 1;
     }
     if (mean_wait_ms < 0 || mean_failure_rate < 0 || mean_failure_rate > 1 ||
