@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
     double progress_interval = 1.0;
     unsigned long seed = 0;
     bool has_seed = false;
+    bool progressive_print = false;
 
     for (int i = 1; i < argc; i++) {
         string option = argv[i];
@@ -23,8 +24,13 @@ int main(int argc, char *argv[]) {
                  << "  --mean-wait-ms NUMBER       Mean send wait in milliseconds (default: 100)\n"
                  << "  --mean-failure-rate NUMBER  Mean failure probability, 0 to 1 (default: 0.1)\n"
                  << "  --seed NUMBER              Random seed (default: automatically generated)\n"
-                 << "  --progress-interval NUMBER  Progress update interval in seconds (default: 1)\n";
+                 << "  --progress-interval NUMBER  Progress update interval in seconds (default: 1)\n"
+                 << "  --progressive-print        Keep progress updates on separate lines (default: off)\n";
             return 0;
+        }
+        if (option == "--progressive-print") {
+            progressive_print = true;
+            continue;
         }
         if (option != "--messages" && option != "--senders" &&
             option != "--mean-wait-ms" && option != "--mean-failure-rate" &&
@@ -74,7 +80,7 @@ int main(int argc, char *argv[]) {
     cout << "Progress interval (seconds): " << progress_interval << endl;
 
     InitSimulation(messages, senders, mean_wait_ms, mean_failure_rate, seed,
-                   progress_interval);
+                   progress_interval, progressive_print);
 
     return 0;
 }
